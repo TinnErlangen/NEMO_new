@@ -10,7 +10,7 @@ import numpy as np
 plt.ion() #this keeps plots interactive
 
 # define file locations
-proc_dir = "D:/XXX/proc/"
+proc_dir = "D:/NEMO_analyses_new/proc/"
 # pass subject and run lists
 subjs = ["XXX_01","XXX_02",]
 runs = ["1","3"]
@@ -48,4 +48,4 @@ cyc = Cycler(filelist)
 
 
 # Tipps: click on bad channels to mark them (they're easily spotted from the PSD plot); press 'a' to switch in annotation mode and drag the mouse over 'BAD' segments to mark with that label
-# important: close the plot to save the markings! - then do cyc.save() to save the file 
+# important: close the plot to save the markings! - then do cyc.save() to save the file
