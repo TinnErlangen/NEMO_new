@@ -10,17 +10,34 @@ import numpy as np
 plt.ion() #this keeps plots interactive
 
 # define file locations
-proc_dir = "D:/NEMO_analyses_new/proc/"
+proc_dir = "D:/NEMO_analyses_new/preproc/"
 # pass subject and run lists
-subjs = ["XXX_01","XXX_02",]
-runs = ["1","3"]
+subjs_all = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15","NEM_16",
+        "NEM_17","NEM_18","NEM_19","NEM_20","NEM_21","NEM_22",
+        "NEM_23","NEM_24","NEM_26","NEM_27","NEM_28",
+        "NEM_29","NEM_30","NEM_31","NEM_32","NEM_33","NEM_34",
+        "NEM_35","NEM_36","NEM_37"]
+excluded = ["NEM_19","NEM_21","NEM_30","NEM_32","NEM_33","NEM_37"]
+subjs = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15",
+         "NEM_16","NEM_17","NEM_18","NEM_20","NEM_22",
+         "NEM_23","NEM_24","NEM_26","NEM_27","NEM_28",
+         "NEM_29","NEM_31","NEM_34","NEM_35","NEM_36"]
+#subjs = ["NEM_10","NEM_11"]
+runs = ["1","2","3","4"]
 # create new lists, if you want to try things on single subjects or runs
+
+#dictionary with conditions/triggers for plotting
+event_id = {'rest': 220, 'ton_r1': 191,'ton_r2': 192, 'ton_s1': 193, 'ton_s2': 194,
+            'negative/pic1': 10, 'positive/pic1': 20, 'negative/pic2': 30,
+            'positive/pic2': 40, 'negative/pic3': 50, 'positive/pic3': 60,
+            'negative/r1': 110,'positive/r1': 120, 'negative/r2': 130, 'positive/r2': 140,
+            'negative/s1': 150, 'positive/s1': 160,'negative/s2': 170, 'positive/s2': 180}
 
 # collecting the files for annotation into a list
 filelist = []
 for sub in subjs:
     for run in runs:
-        filelist.append('{dir}{sub}_{run}-raw.fif'.format(dir=proc_dir,sub=sub,run=run))
+        filelist.append('{dir}nc_{sub}_{run}-raw.fif'.format(dir=proc_dir,sub=sub,run=run))
 
 #definition of cycler object to go through the file list for annotation
 class Cycler():
@@ -42,7 +59,7 @@ class Cycler():
         print("Current Raw File: " + self.fn)    # use this to find out which subject/run we're looking at currently
 
     def save(self):
-        self.raw.save(self.fn[:-8]+'_m-raw.fif')   # important: save the annotated file in the end !
+        self.raw.save(self.fn[:-8]+'_m-raw.fif', overwrite=True)   # important: save the annotated file in the end !
 
 cyc = Cycler(filelist)
 
