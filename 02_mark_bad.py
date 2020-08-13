@@ -22,8 +22,9 @@ subjs = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15",
          "NEM_16","NEM_17","NEM_18","NEM_20","NEM_22",
          "NEM_23","NEM_24","NEM_26","NEM_27","NEM_28",
          "NEM_29","NEM_31","NEM_34","NEM_35","NEM_36"]
-#subjs = ["NEM_10","NEM_11"]
+# subjs = ["NEM_10"]
 runs = ["1","2","3","4"]
+# runs = ["4"]
 # create new lists, if you want to try things on single subjects or runs
 
 #dictionary with conditions/triggers for plotting
