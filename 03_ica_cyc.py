@@ -19,9 +19,9 @@ subjs = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15",
          "NEM_16","NEM_17","NEM_18","NEM_20","NEM_22",
          "NEM_23","NEM_24","NEM_26","NEM_27","NEM_28",
          "NEM_29","NEM_31","NEM_34","NEM_35","NEM_36"]
-subjs = ["NEM_10"]
+# subjs = ["NEM_36"]
 runs = ["1","2","3","4"]
-# runs = ["4"]
+# runs = ["3"]
 
 #collecting the files : triplets of annotated epoch file and corresponding reference and MEG ica result files
 filelist = []
@@ -111,12 +111,12 @@ class Cycler():
     def save(self,comps=None):
         self.comps += self.ica.exclude
         if not comps:
-            self.ica.apply(self.raw,exclude=self.comps).save(self.fn[0][:-10]+'_ica-raw.fif',overwrite=True)
+            self.ica.apply(self.raw,exclude=self.comps).save(self.fn[0][:29]+self.fn[0][32:-10]+'_ica-raw.fif',overwrite=True)
         elif isinstance(comps,list):
-            self.ica.apply(self.epo,exclude=self.comps+comps).save(self.fn[0][:-10]+'_ica-raw.fif',overwrite=True)
+            self.ica.apply(self.raw,exclude=self.comps+comps).save(self.fn[0][:29]+self.fn[0][32:-10]+'_ica-raw.fif',overwrite=True)
         else:
             print("No components applied, saving anyway for consistency")
-            self.raw.save(self.fn[0][:-10]+'_ica-raw.fif',overwrite=True)
+            self.raw.save(self.fn[0][:29]+self.fn[0][32:-10]+'_ica-raw.fif',overwrite=True)
 
 
 cyc = Cycler(filelist, ref_comp_num)
