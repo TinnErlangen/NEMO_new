@@ -19,26 +19,28 @@ excluded = {"NEM_30":"DIU11","NEM_32":"NAG83","NEM_33":"FAO18_fa","NEM_37":"EAM6
 
 ## prep fsaverage
 
-# # build BEM model for fsaverage (as boundary for source space creation)
-# bem_model = mne.make_bem_model("fsaverage", subjects_dir=mri_dir, ico=5, conductivity=[0.3])
-# bem = mne.make_bem_solution(bem_model)
-# mne.write_bem_solution("{dir}fsaverage-bem.fif".format(dir=meg_dir),bem)
-# mne.viz.plot_bem(subject="fsaverage", subjects_dir=mri_dir, brain_surfaces='white', orientation='coronal')
-#
-# # build fs_average mixed 'oct6' with limbic source space & save (to use as morph target later)
-# labels_limb = ['Left-Thalamus-Proper','Left-Caudate','Left-Putamen','Left-Pallidum','Left-Hippocampus','Left-Amygdala',
-#               'Right-Thalamus-Proper','Right-Caudate','Right-Putamen','Right-Pallidum','Right-Hippocampus','Right-Amygdala']
-# fs_src = mne.setup_source_space("fsaverage", spacing='oct6', surface="white", subjects_dir=mri_dir, n_jobs=6)
-# fs_limb_src = mne.setup_volume_source_space("fsaverage", mri="aseg.mgz", pos=5.0, bem=bem, volume_label=labels_limb, subjects_dir=mri_dir,add_interpolator=True,verbose=True)
-# fs_src += fs_limb_src
-# # print out the number of spaces and points
-# n = sum(fs_src[i]['nuse'] for i in range(len(fs_src)))
-# print('the fs_src space contains %d spaces and %d points' % (len(fs_src), n))
-# fs_src.plot(subjects_dir=mri_dir)
-# # save the mixed source space
-# fs_src.save("{}fsaverage_oct6_mix-src.fif".format(meg_dir), overwrite=True)
-# del fs_src
+# build BEM model for fsaverage (as boundary for source space creation)
+bem_model = mne.make_bem_model("fsaverage", subjects_dir=mri_dir, ico=5, conductivity=[0.3])
+bem = mne.make_bem_solution(bem_model)
+mne.write_bem_solution("{dir}fsaverage-bem.fif".format(dir=meg_dir),bem)
+mne.viz.plot_bem(subject="fsaverage", subjects_dir=mri_dir, brain_surfaces='white', orientation='coronal')
 
+# build fs_average mixed 'oct6' with limbic source space & save (to use as morph target later)
+labels_limb = ['Left-Thalamus-Proper','Left-Caudate','Left-Putamen','Left-Pallidum','Left-Hippocampus','Left-Amygdala',
+              'Right-Thalamus-Proper','Right-Caudate','Right-Putamen','Right-Pallidum','Right-Hippocampus','Right-Amygdala']
+fs_src = mne.setup_source_space("fsaverage", spacing='oct6', surface="white", subjects_dir=mri_dir, n_jobs=6)
+fs_limb_src = mne.setup_volume_source_space("fsaverage", mri="aseg.mgz", pos=5.0, bem=bem, volume_label=labels_limb, subjects_dir=mri_dir,add_interpolator=True,verbose=True)
+fs_src += fs_limb_src
+# print out the number of spaces and points
+n = sum(fs_src[i]['nuse'] for i in range(len(fs_src)))
+print('the fs_src space contains %d spaces and %d points' % (len(fs_src), n))
+fs_src.plot(subjects_dir=mri_dir)
+# save the mixed source space
+fs_src.save("{}fsaverage_oct6_mix-src.fif".format(meg_dir), overwrite=True)
+del fs_src
+# create another volume source space, with limbic structures as single volume (for later cluster stats)
+fs_limb_vol = mne.setup_volume_source_space("fsaverage", mri="aseg.mgz", pos=5.0, bem=bem, volume_label=labels_limb, subjects_dir=mri_dir, add_interpolator=True, single_volume=True, verbose=True)
+fs_limb_vol.save("{}fsaverage_limb-src.fif".format(meg_dir), overwrite=True)
 ## prep subjects
 
 labels_limb = ['Left-Thalamus-Proper','Left-Caudate','Left-Putamen','Left-Pallidum','Left-Hippocampus','Left-Amygdala',

@@ -17,6 +17,9 @@ sub_dict = {"NEM_10":"GIZ04","NEM_11":"WOO07","NEM_12":"TGH11","NEM_14":"FIN23",
 excluded = {"NEM_30":"DIU11","NEM_32":"NAG83","NEM_33":"FAO18_fa","NEM_37":"EAM67","NEM_19":"ALC81","NEM_21":"WKI71_fa"}
 # sub_dict = {"NEM_11":"WOO07",}
 
+# load the fsaverage source space for computing and saving source morph from subjects
+fs_src = mne.read_source_spaces("{}fsaverage_oct6_mix-src.fif".format(meg_dir))
+
 for meg,mri in sub_dict.items():
     # read source space and BEM solution (conductor model) that have been saved
     trans = "{dir}{mri}_{meg}-trans.fif".format(dir=trans_dir,mri=mri,meg=meg)
@@ -44,3 +47,7 @@ for meg,mri in sub_dict.items():
     leadfield = fwd['sol']['data']
     print("Leadfield size : %d sensors x %d dipoles" % leadfield.shape)
     # mne.viz.plot_alignment(epo_a_info, trans, subject=mri, dig=False, fwd=fwd, src=fwd['src'], eeg=False, subjects_dir=mri_dir, surfaces='white', bem=bem)
+
+    # compute and save source morph to fsaverage for later group analyses 
+    morph = mne.compute_source_morph(fwd['src'],subject_from=mri,subject_to="fsaverage",subjects_dir=mri_dir,src_to=fs_src)  ## it's important to use fwd['src'] to account for discarded vertices
+    morph.save("{}{}_fs_mix-morph.h5".format(meg_dir,meg))
