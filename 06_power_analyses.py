@@ -29,8 +29,8 @@ conditions = {'rest':'rest', 'tonbas':['tonbas','tonrat'], 'pic_n':'negative/pic
 conds = list(conditions.keys())
 
 ## PREP PARAMETERS for Power Group Analyses
-threshold = 2.093     ## choose initial T-threshold for clustering; based on p-value of .05 or .01 for df = (subj_n-1); with df=19 - 2.093, or 2.861
-cond_a = 'tonbas'      ## specifiy the conditions to contrast
+threshold = 2.861     ## choose initial T-threshold for clustering; based on p-value of .05 or .01 for df = (subj_n-1); with df=19 - 2.093, or 2.861
+cond_a = 'pic_n'      ## specifiy the conditions to contrast
 cond_b = 'rest'
 # list for collecting stcs for group average for plotting
 all_diff = []
@@ -78,7 +78,7 @@ for stc in all_diff:
     stc_sum = stc_sum + stc
 GA_stc_diff = stc_sum / len(sub_dict)
 # plot difference on fsaverage mixed source space
-brain = GA_stc_diff.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,src=fs_src)
+brain = GA_stc_diff.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,src=fs_src,show_traces=False)
 brain.add_annotation('aparc', borders=1, alpha=0.9)
 
 # now do cluster permutation analysis on all frequencies
@@ -96,7 +96,7 @@ for i,freq in enumerate(freq_tup):
     good_cluster_inds = np.where(cluster_pv < 0.05)[0]
     if len(good_cluster_inds):
         stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_surf_vertices)  # vertices must be given here !!
-        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True)
+        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,show_traces=False)
     else:
         print("No sign. clusters found")
     print("Looking for limbic volume clusters")
