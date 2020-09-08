@@ -25,7 +25,7 @@ cycs_n = [5, 5, 5, 5, 5, 7, 7,  7,  7,  7,  7,  9,  9,  9,  9,  9,  9,  9,  9, 1
 freqs_g = [65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95]
 cycs_g = [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
 fmins = [3, 8, 14, 22, 31]
-fmaxs = [7, 13, 21, 30, 46]   # remember to use (65,95) as (fmin,fmax) for the gamma_high calculation 
+fmaxs = [7, 13, 21, 30, 46]   # remember to use (65,95) as (fmin,fmax) for the gamma_high calculation
 # the conditions
 conditions = {'rest':'rest', 'tonbas':['tonbas','tonrat'], 'pic_n':'negative/pics', 'pic_p':'positive/pics',
               'ton_n':['negative/r1','negative/r2','negative/s1','negative/s2'], 'ton_p':['positive/r1','positive/r2','positive/s1','positive/s2']}
@@ -55,6 +55,10 @@ trig_id = {v: k for k,v in event_id.items()}   # this reverses the dictionary an
 ## POWER ROI CALCULATIONS
 for meg,mri in sub_dict.items():
     roi_power = []
+    src = mne.read_source_spaces()
+    labels = mne.read_labels_from_annot(mri, parc='aparc', hemi='both', surf_name='white', annot_fname=None, regexp=None, subjects_dir=mri_dir, sort=False, verbose=None)
+    labels_sub = mne.get_volume_labels_from_src(src, mri, mri_dir)
+    labels_all = labels + labels_sub
     # load the epochs, and restrict them to the experimental trials
     epo_all = mne.read_epochs("{}{}-epo.fif".format(proc_dir,meg))
     epos = epo_all['negative','positive']                                                        ## check if these come in order !!!  epos[i].events --> gives [[1538,0,161]] structure, access time sample w/ epos[i].events[0][0]
@@ -65,4 +69,22 @@ for meg,mri in sub_dict.items():
     # now loop through the single epochs
     for i in range(len(epos)):                                          ## check this without looping first, setting i = 0 or other ...
         epo = epos[i]
-        csd =
+        # calculate csd and csd_gamma
+        csd_n = csd_morlet(epo, frequencies=freqs_n, n_jobs=8, n_cycles=cycs_n, decim=1)
+        csd_g = csd_morlet(epo, frequencies=freqs_g, n_jobs=8, n_cycles=cycs_g, decim=1)
+        # apply filters
+        stc, frqs = mne.beamformer.apply_dics_csd(csd_n.mean(fmins,fmaxs),filters)
+        stc_g, frqs_g = mne.beamformer.apply_dics_csd(csd_g.mean(65,95),filters_g)
+        # extract label timecourses (i.e. power values)
+        ltcs = stc.extract_label_time_course(labels,fwd['src'])
+        ltcs.append(stc_g.stc.extract_label_time_course(labels,fwd['src'])
+        # collect them into roi_power structure of the subject
+        roi_power.append([i,epo.event_id,labels_all,ltcs])
+        filename = "{}_trial_roi_power.txt"
+        with open(filename, "w") as file:
+            file.write("Tri_Ord\tEvent_ID")
+            for l in labels_all:
+                file.write("\t{}".format(l))
+            for e_vals in roi_power:
+
+    roi_power.save
