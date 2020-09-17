@@ -36,19 +36,19 @@ aparc_limb_labels = ["bankssts", "caudalanteriorcingulate", "caudalmiddlefrontal
                      "Thalamus-Proper", "Caudate", "Putamen", "Pallidum", "Hippocampus", "Amygdala"]
 rois_emo = ["Amygdala","insula","parsorbitalis","medialorbitofrontal","lateralorbitofrontal"]
 rois_aud = ["Thalamus-Proper","transversetemporal","superiortemporal","bankssts","supramarginal"]
-rois_vis = ["lateraloccipital","cuneus","pericalcarine","lingual","fusiform","inferiortemporal"]     # including occ-temp regions
-rois_att = ["rostralanteriorcingulate","caudalanteriorcingulate","posteriorcingulate","superiorparietal"]
-rois_mem = ["Hippocampus","parahippocampal","fusiform","inferiortemporal","temporalpole"]
+rois_vis = ["lateraloccipital","cuneus","pericalcarine","lingual","fusiform","inferiortemporal"]
+rois_att = ["superiorparietal","inferiorparietal","rostralanteriorcingulate","caudalanteriorcingulate","posteriorcingulate"]
+rois_mem = ["Hippocampus","parahippocampal","entorhinal"]
 rois_mot = ["precentral"]
 
 # set columns construction variables: Cond, ROI, Freq
 conds = ["Pic","Ton_Part1","Ton_Part2","Ton_Part3","Ton_Part4"]
 hems = ["-lh","-rh"]
-rois_pic = rois_vis + rois_emo + rois_aud
-rois_ton = rois_vis + rois_emo + rois_aud
+rois_pic = rois_vis + rois_emo + rois_aud + rois_att + rois_mem + rois_mot
+rois_ton = rois_vis + rois_emo + rois_aud + rois_att + rois_mem + rois_mot
 freqs = ["theta","alpha","beta_low","beta_high","gamma","gamma_high"]
-start_cols = ["Subject","Psych_ges","Angst_ges","ER_ges","Trial_O","Trial_N","Cond","PicVal","PicArs"]
-mid_cols = ["Ton"]
+start_cols = ["Subject","Psych_ges","Angst_ges","ER_ges","Trial_O","Ton","Trial_N","Cond","PicVal","PicArs"]
+#mid_cols = ["Ton"]
 end_cols = ["TonLaut","TonAng","MoodVal","MoodArs"]
 
 # get dicts here with psych variables for fixed vars
@@ -65,7 +65,7 @@ for roi in rois_pic:
     for hem in hems:
         for freq in freqs:
             columns.append("{c}_{r}{h}_{f}".format(c=cond,r=roi,h=hem,f=freq))
-columns += mid_cols
+#columns += mid_cols
 for cond in conds[1:]:
     for roi in rois_ton:
         for hem in hems:
@@ -186,4 +186,6 @@ for sub_ix,sub in enumerate(subjs):
     df_NEM = pd.concat([df_NEM,df_sub])
 
 # when all subject data are collected, save the dataframe (feather format is fast and readable in R)
+df_NEM.index = list(range(df_NEM.shape[0]))  # fix the index for saving
 df_NEM.to_feather("{}NEMO.feather".format(proc_dir))
+df_NEM.to_csv("{}NEMO.csv".format(proc_dir), index=False)
