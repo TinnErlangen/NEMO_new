@@ -30,8 +30,8 @@ conds = list(conditions.keys())
 
 ## PREP PARAMETERS for Power Group Analyses
 threshold = 2.861     ## choose initial T-threshold for clustering; based on p-value of .05 or .01 for df = (subj_n-1); with df=19 - 2.093, or 2.861
-cond_a = 'ton_n'      ## specifiy the conditions to contrast
-cond_b = 'tonbas'
+cond_a = 'ton_n_part4'      ## specifiy the conditions to contrast
+cond_b = 'ton_p_part4'
 # list for collecting stcs for group average for plotting
 all_diff = []
 # list for data arrays for permutation t-test on source
@@ -92,6 +92,7 @@ print("Looking for surface clusters")
 # Xs = np.expand_dims(Xs,axis=1)
 t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(X_diff_s, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_s, n_jobs=6, step_down_p=0.05, t_power=1, out_type='indices')
 # get significant clusters and plot
+print(cluster_pv)
 good_cluster_inds = np.where(cluster_pv < 0.05)[0]
 if len(good_cluster_inds):
     stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_surf_vertices)  # vertices must be given here !!
@@ -102,6 +103,7 @@ print("Looking for limbic volume clusters")
 # Xv = X_diff_v[:,i,:]
 # Xv = np.expand_dims(Xv,axis=1)
 t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(X_diff_v, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_v, n_jobs=6, step_down_p=0.05, t_power=1, out_type='indices')
+print(cluster_pv)
 # # get significant clusters and plot
 # good_cluster_inds = np.where(cluster_pv < 0.05)[0]
 # if len(good_cluster_inds):

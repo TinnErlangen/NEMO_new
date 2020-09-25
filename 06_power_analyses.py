@@ -30,8 +30,8 @@ conds = list(conditions.keys())
 
 ## PREP PARAMETERS for Power Group Analyses
 threshold = 2.861     ## choose initial T-threshold for clustering; based on p-value of .05 or .01 for df = (subj_n-1); with df=19 - 2.093, or 2.861
-cond_a = 'pic_n'      ## specifiy the conditions to contrast
-cond_b = 'rest'
+cond_a = 'ton_n_part4'      ## specifiy the conditions to contrast
+cond_b = 'ton_p_part4'
 # list for collecting stcs for group average for plotting
 all_diff = []
 # list for data arrays for permutation t-test on source
@@ -96,7 +96,7 @@ for i,freq in enumerate(freq_tup):
     good_cluster_inds = np.where(cluster_pv < 0.05)[0]
     if len(good_cluster_inds):
         stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_surf_vertices)  # vertices must be given here !!
-        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,show_traces=False)
+        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,show_traces=False)       # if plotting problems, try adding: clim={'kind':'value','pos_lims':(0,0.0005,0.01)}
     else:
         print("No sign. clusters found")
     print("Looking for limbic volume clusters")

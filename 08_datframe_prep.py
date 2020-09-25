@@ -44,8 +44,8 @@ rois_mot = ["precentral"]
 # set columns construction variables: Cond, ROI, Freq
 conds = ["Pic","Ton_Part1","Ton_Part2","Ton_Part3","Ton_Part4"]
 hems = ["-lh","-rh"]
-rois_pic = rois_vis + rois_emo + rois_aud + rois_att + rois_mem + rois_mot
-rois_ton = rois_vis + rois_emo + rois_aud + rois_att + rois_mem + rois_mot
+rois_pic = aparc_limb_labels
+rois_ton = aparc_limb_labels
 freqs = ["theta","alpha","beta_low","beta_high","gamma","gamma_high"]
 start_cols = ["Subject","Psych_ges","Angst_ges","ER_ges","Trial_O","Ton","Trial_N","Cond","PicVal","PicArs"]
 #mid_cols = ["Ton"]
@@ -187,5 +187,5 @@ for sub_ix,sub in enumerate(subjs):
 
 # when all subject data are collected, save the dataframe (feather format is fast and readable in R)
 df_NEM.index = list(range(df_NEM.shape[0]))  # fix the index for saving
-df_NEM.to_feather("{}NEMO.feather".format(proc_dir))
-df_NEM.to_csv("{}NEMO.csv".format(proc_dir), index=False)
+df_NEM.to_feather("{}NEMO_complete.feather".format(proc_dir))
+df_NEM.to_csv("{}NEMO_complete.csv".format(proc_dir), index=False)

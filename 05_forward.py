@@ -48,6 +48,8 @@ for meg,mri in sub_dict.items():
     print("Leadfield size : %d sensors x %d dipoles" % leadfield.shape)
     # mne.viz.plot_alignment(epo_a_info, trans, subject=mri, dig=False, fwd=fwd, src=fwd['src'], eeg=False, subjects_dir=mri_dir, surfaces='white', bem=bem)
 
-    # compute and save source morph to fsaverage for later group analyses 
+    # compute sensitivity map values, and exclude dipoles <0.15
+
+    # compute and save source morph to fsaverage for later group analyses
     morph = mne.compute_source_morph(fwd['src'],subject_from=mri,subject_to="fsaverage",subjects_dir=mri_dir,src_to=fs_src)  ## it's important to use fwd['src'] to account for discarded vertices
     morph.save("{}{}_fs_mix-morph.h5".format(meg_dir,meg))
