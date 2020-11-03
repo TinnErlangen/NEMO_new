@@ -16,13 +16,21 @@ sub_dict = {"NEM_10":"GIZ04","NEM_11":"WOO07","NEM_12":"TGH11","NEM_14":"FIN23",
 excluded = {"NEM_30":"DIU11","NEM_32":"NAG83","NEM_33":"FAO18_fa","NEM_37":"EAM67","NEM_19":"ALC81","NEM_21":"WKI71_fa"}
 # sub_dict = {"NEM_10":"GIZ04"}
 
-# the frequency bands used in dictionary form & freq_band bounds for averaging CSDs
-freqs = {"theta":list(np.arange(3,8)),"alpha":list(np.arange(8,14)),"beta_low":list(np.arange(14,22)),
-         "beta_high":list(np.arange(22,31)),"gamma":list(np.arange(31,47))}
+# # the frequency bands used in dictionary form & freq_band bounds for averaging CSDs
+# freqs = {"theta":list(np.arange(3,8)),"alpha":list(np.arange(8,14)),"beta_low":list(np.arange(14,22)),
+#          "beta_high":list(np.arange(22,31)),"gamma":list(np.arange(31,47))}
+# freqs_g = {"gamma_high":list(np.arange(65,96,2))}
+# fmins = [3, 8, 14, 22, 31]
+# fmaxs = [7, 13, 21, 30, 46]
+
+# the new freq bands (from TFR) used for new DICS filters
+freqs = {"theta_low":list(np.arange(4,5)),"theta_high":list(np.arange(5,7)),"alpha_low":list(np.arange(7,9)),"alpha_high":list(np.arange(9,14)),
+         "beta_low":list(np.arange(14,21)),"beta_high":list(np.arange(21,32)),"gamma":list(np.arange(32,47))}
+fmins = [4, 5, 7, 9, 14, 21, 32]
+fmaxs = [5, 7, 9, 14, 21, 32, 46]
+
 freq_tup = tuple(freqs.keys())
-freqs_g = {"gamma_high":list(np.arange(65,96,2))}
-fmins = [3, 8, 14, 22, 31]
-fmaxs = [7, 13, 21, 30, 46]
+
 # the conditions
 conditions = {'rest':'rest', 'tonbas':['tonbas','tonrat'], 'pic_n':'negative/pics', 'pic_p':'positive/pics',
               'ton_n':['negative/r1','negative/r2','negative/s1','negative/s2'], 'ton_p':['positive/r1','positive/r2','positive/s1','positive/s2']}
@@ -30,8 +38,8 @@ conds = list(conditions.keys())
 
 ## PREP PARAMETERS for Power Group Analyses
 threshold = 2.861     ## choose initial T-threshold for clustering; based on p-value of .05 or .01 for df = (subj_n-1); with df=19 - 2.093, or 2.861
-cond_a = 'ton_n_part4'      ## specifiy the conditions to contrast
-cond_b = 'ton_p_part4'
+cond_a = 'ton_n'      ## specifiy the conditions to contrast
+cond_b = 'ton_p'
 # list for collecting stcs for group average for plotting
 all_diff = []
 # list for data arrays for permutation t-test on source
@@ -56,8 +64,10 @@ fs_src = mne.read_source_spaces("{}fsaverage_oct6_mix-src.fif".format(proc_dir))
 for meg,mri in sub_dict.items():
     epo = mne.read_epochs("{}{}-epo.fif".format(proc_dir,meg))
     fwd = mne.read_forward_solution("{}{}-fwd.fif".format(proc_dir,meg))
-    # load filters for DICS beamformer
-    filters = mne.beamformer.read_beamformer('{}{}-dics.h5'.format(proc_dir,meg))
+    # # load filters for DICS beamformer
+    # filters = mne.beamformer.read_beamformer('{}{}-dics.h5'.format(proc_dir,meg))
+    # redo with NEW DICS FILTERS
+    filters = mne.beamformer.read_beamformer('{}{}-new-dics.h5'.format(proc_dir,meg))
     # load CSDs for conditions to compare, apply filters
     csd_a = mne.time_frequency.read_csd("{}{}_{}-csd.h5".format(proc_dir,meg,cond_a))
     csd_b = mne.time_frequency.read_csd("{}{}_{}-csd.h5".format(proc_dir,meg,cond_b))
@@ -85,28 +95,28 @@ brain.add_annotation('aparc', borders=1, alpha=0.9)
 X_diff_s = np.array(X_diff_s)
 X_diff_v = np.array(X_diff_v)
 
-for i,freq in enumerate(freq_tup):
-    print("Performing cluster analysis on :  {}".format(freq))
-    print("Contrasting: {}  vs.  {}".format(cond_a,cond_b))
-    print("Looking for surface clusters")
-    Xs = X_diff_s[:,i,:]
-    Xs = np.expand_dims(Xs,axis=1)
-    t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(Xs, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_s, n_jobs=6, step_down_p=0.05, t_power=1, out_type='indices')
-    # get significant clusters and plot
-    good_cluster_inds = np.where(cluster_pv < 0.05)[0]
-    if len(good_cluster_inds):
-        stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_surf_vertices)  # vertices must be given here !!
-        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,show_traces=False)       # if plotting problems, try adding: clim={'kind':'value','pos_lims':(0,0.0005,0.01)}
-    else:
-        print("No sign. clusters found")
-    print("Looking for limbic volume clusters")
-    Xv = X_diff_v[:,i,:]
-    Xv = np.expand_dims(Xv,axis=1)
-    t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(Xv, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_v, n_jobs=6, step_down_p=0.05, t_power=1, out_type='indices')
-    # get significant clusters and plot
-    good_cluster_inds = np.where(cluster_pv < 0.05)[0]
-    if len(good_cluster_inds):
-        stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_limb_vertices)  # vertices must be given here !!
-        brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True)
-    else:
-        print("No sign. clusters found")
+# for i,freq in enumerate(freq_tup):
+#     print("Performing cluster analysis on :  {}".format(freq))
+#     print("Contrasting: {}  vs.  {}".format(cond_a,cond_b))
+#     print("Looking for surface clusters")
+#     Xs = X_diff_s[:,i,:]
+#     Xs = np.expand_dims(Xs,axis=1)
+#     t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(Xs, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_s, n_jobs=4, step_down_p=0.05, t_power=1, out_type='indices')
+#     # get significant clusters and plot
+#     good_cluster_inds = np.where(cluster_pv < 0.05)[0]
+#     if len(good_cluster_inds):
+#         stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_surf_vertices)  # vertices must be given here !!
+#         brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,show_traces=False)       # if plotting problems, try adding: clim={'kind':'value','pos_lims':(0,0.0005,0.01)}
+#     else:
+#         print("No sign. clusters found")
+#     print("Looking for limbic volume clusters")
+#     Xv = X_diff_v[:,i,:]
+#     Xv = np.expand_dims(Xv,axis=1)
+#     t_obs, clusters, cluster_pv, H0 = clu = mne.stats.spatio_temporal_cluster_1samp_test(Xv, n_permutations=1024, threshold = threshold, tail=0, adjacency=adjacency_v, n_jobs=4, step_down_p=0.05, t_power=1, out_type='indices')
+#     # get significant clusters and plot
+#     good_cluster_inds = np.where(cluster_pv < 0.05)[0]
+#     if len(good_cluster_inds):
+#         stc_clu_summ = mne.stats.summarize_clusters_stc(clu, p_thresh=0.05, tstep=0.001, tmin=0, subject='fsaverage', vertices=fs_limb_vertices)  # vertices must be given here !!
+#         brain = stc_clu_summ.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True)
+#     else:
+#         print("No sign. clusters found")
