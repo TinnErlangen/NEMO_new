@@ -32,8 +32,8 @@ tmin_plot = 0
 tmax_plot = 11.6
 n_jobs = 4
 # label of interest
-lois_done = ['transversetemporal-rh','lateraloccipital-rh']
-loi = 'transversetemporal-rh'
+lois_done = ['transversetemporal-rh','lateraloccipital-rh','inferiortemporal-rh','supramarginal-rh']
+loi = 'supramarginal-rh'
 
 coll_stcs_neg = []
 coll_stcs_pos = []
@@ -54,14 +54,14 @@ for meg,mri in sub_dict.items():
         stc_cont = mne.read_source_estimate("{}{}_TF_dics_cont_N-P_{}-{}_{}-stc.h5".format(save_dir,meg,freq_bins[fb][0],freq_bins[fb][-1],loi))
         stcs_cont.append(stc_cont)
     coll_stcs_neg.append(stcs_neg)
-    #fig_n = plot_source_spectrogram(stcs_neg, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
-    #fig_n.savefig("{}{}_neg_{}.png".format(plot_dir,meg,loi))
+    fig_n = plot_source_spectrogram(stcs_neg, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
+    fig_n.savefig("{}{}_neg_{}.png".format(plot_dir,meg,loi))
     coll_stcs_pos.append(stcs_pos)
-    #fig_p = plot_source_spectrogram(stcs_pos, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)
-    #fig_p.savefig("{}{}_pos_{}.png".format(plot_dir,meg,loi))
+    fig_p = plot_source_spectrogram(stcs_pos, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)
+    fig_p.savefig("{}{}_pos_{}.png".format(plot_dir,meg,loi))
     coll_stcs_cont.append(stcs_cont)
-    #fig_c = plot_source_spectrogram(stcs_cont, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='Spectral_r', vmin=-1e-26, vmax=1e-26, show=False)
-    #fig_c.savefig("{}{}_cont_N-P_{}.png".format(plot_dir,meg,loi))
+    fig_c = plot_source_spectrogram(stcs_cont, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='Spectral_r', vmin=-1e-26, vmax=1e-26, show=False)
+    fig_c.savefig("{}{}_cont_N-P_{}.png".format(plot_dir,meg,loi))
 
 # GA for negatives
 # have to average over vertices in all single subjects first
@@ -79,10 +79,10 @@ for f in range(len(coll_stcs_neg[0])):
     for s in range(len(coll_stcs_neg[1:])):
         GA_stcs_neg[f].data += coll_stcs_neg[s+1][f].data
     GA_stcs_neg[f].data /= len(coll_stcs_neg)
-# for fb in range(len(freq_bins)):
-#     GA_stcs_neg[fb].save("{}GA_TF_dics_neg_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
-# GA_fig_n = plot_source_spectrogram(GA_stcs_neg, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
-# GA_fig_n.savefig("{}GA_neg_{}.png".format(plot_dir,loi))
+for fb in range(len(freq_bins)):
+    GA_stcs_neg[fb].save("{}GA_TF_dics_neg_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
+GA_fig_n = plot_source_spectrogram(GA_stcs_neg, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
+GA_fig_n.savefig("{}GA_neg_{}.png".format(plot_dir,loi))
 
 # GA for positives
 # have to average over vertices in all single subjects first
@@ -100,10 +100,10 @@ for f in range(len(coll_stcs_pos[0])):
     for s in range(len(coll_stcs_pos[1:])):
         GA_stcs_pos[f].data += coll_stcs_pos[s+1][f].data
     GA_stcs_pos[f].data /= len(coll_stcs_pos)
-# for fb in range(len(freq_bins)):
-#     GA_stcs_pos[fb].save("{}GA_TF_dics_pos_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
-# GA_fig_p = plot_source_spectrogram(GA_stcs_pos, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
-# GA_fig_p.savefig("{}GA_pos_{}.png".format(plot_dir,loi))
+for fb in range(len(freq_bins)):
+    GA_stcs_pos[fb].save("{}GA_TF_dics_pos_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
+GA_fig_p = plot_source_spectrogram(GA_stcs_pos, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='hot_r', vmin=0, vmax=6e-26, show=False)    # freq_bins! or error
+GA_fig_p.savefig("{}GA_pos_{}.png".format(plot_dir,loi))
 
 # GA for contrast
 # average over vertices in all  single subjects
@@ -121,10 +121,10 @@ for f in range(len(coll_stcs_cont[0])):
     for s in range(len(coll_stcs_cont[1:])):
         GA_stcs_cont[f].data += coll_stcs_cont[s+1][f].data
     GA_stcs_cont[f].data /= len(coll_stcs_cont)
-# for fb in range(len(freq_bins)):
-#     GA_stcs_cont[fb].save("{}GA_TF_dics_cont_N-P_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
-# GA_fig_c = plot_source_spectrogram(GA_stcs_cont, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='Spectral_r', vmin=-0.5e-26, vmax=0.5e-26, show=False)    # freq_bins! or error
-# GA_fig_c.savefig("{}GA_cont_N-P_{}.png".format(plot_dir,loi))
+for fb in range(len(freq_bins)):
+    GA_stcs_cont[fb].save("{}GA_TF_dics_cont_N-P_{}-{}_{}-stc.h5".format(save_dir,freq_bins[fb][0],freq_bins[fb][-1],loi))
+GA_fig_c = plot_source_spectrogram(GA_stcs_cont, freq_bins, tmin=tmin_plot, tmax=tmax_plot, source_index=None, colorbar=True, cmap='Spectral_r', vmin=-0.5e-26, vmax=0.5e-26, show=False)    # freq_bins! or error
+GA_fig_c.savefig("{}GA_cont_N-P_{}.png".format(plot_dir,loi))
 
 ## make a cluster-permutation T-test (N-P) for each freq_bin, looking for sign. time clusters
 for f in range(len(freq_bins)):
