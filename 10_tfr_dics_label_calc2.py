@@ -32,7 +32,7 @@ tmin_plot = 0
 tmax_plot = 11.6
 n_jobs = 4
 # label of interest
-loi = 'supramarginal-rh'
+loi = 'inferiorparietal-rh'
 
 
 for meg,mri in sub_dict.items():
