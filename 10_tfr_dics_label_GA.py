@@ -33,7 +33,7 @@ tmax_plot = 11.6
 n_jobs = 4
 # label of interest
 lois_done = ['transversetemporal-rh','lateraloccipital-rh','inferiortemporal-rh','supramarginal-rh']
-loi = 'supramarginal-rh'
+loi = 'inferiorparietal-rh'
 
 coll_stcs_neg = []
 coll_stcs_pos = []
