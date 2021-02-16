@@ -20,6 +20,8 @@ emos = ["neg","pos"]
 conxs = ["LO-IP","LO-IT","LO-SM","LO-TT","IP-IT",
          "IP-SM","IP-TT","IT-SM","IT-TT","SM-TT"]
 
+# separate LMMs for each connection
+
 # setup LMM
 # for Alpha band
 print("Doing stats on ALPHA dPTE connections")
@@ -72,3 +74,36 @@ for conx in conxs:
     print("AIC: {}".format(res_emo.aic))
     if res_emo.aic < res_0.aic:
         print("Is AIC_Emo sign. better than 0_AIC? -- est. p-value: {}".format(np.exp((res_emo.aic - res_0.aic)/2)))
+
+# full LMM models with connection as factor, and an rm_ANOVA for comparison
+
+# ALPHA models
+# full interaction model
+res_int_a = smf.mixedlm('dPTE ~ Emo * Connection', data=dfa, groups=dfa['Subject']).fit(reml=False)
+print(res_int_a.summary())
+print(res_int_a.aic)
+# null model
+res_0_a = smf.mixedlm('dPTE ~ 1', data=dfa, groups=dfa['Subject']).fit(reml=False)
+print(res_0_a.summary())
+print(res_0_a.aic)
+# single factor 'emotion'
+res_emo_a = smf.mixedlm('dPTE ~ Emo', data=dfa, groups=dfa['Subject']).fit(reml=False)
+print(res_emo_a.summary())
+print(res_emo_a.aic)
+# single factor 'connection'
+res_con_a = smf.mixedlm('dPTE ~ Connection', data=dfa, groups=dfa['Subject']).fit(reml=False)
+print(res_con_a.summary())
+print(res_con_a.aic)
+# two independent factors model
+res_2f_a = smf.mixedlm('dPTE ~ Emo + Connection', data=dfa, groups=dfa['Subject']).fit(reml=False)
+print(res_2f_a.summary())
+print(res_2f_a.aic)
+# rm ANOVA & Tukey HSD post-hoc tests
+anova_a = statsmodels.stats.anova.AnovaRM(df_NEM_dPTE_alpha,depvar="dPTE",subject="Subject",within=["Emo","Connection"],aggregate_func='mean')
+anova_a_res = anova_a.fit()
+print(anova_a_res.summary())
+res_tukey_emo_a = statsmodels.stats.multicomp.pairwise_tukeyhsd(df_NEM_dPTE_alpha.dPTE, groups=df_NEM_dPTE_alpha.Emo, alpha=0.05)
+print(res_tukey_emo_a.summary())
+res_tukey_con_a = statsmodels.stats.multicomp.pairwise_tukeyhsd(df_NEM_dPTE_alpha.dPTE, groups=df_NEM_dPTE_alpha.Connection, alpha=0.05)
+print(res_tukey_con_a.summary())
+# AIC diff significance test for best 2 models

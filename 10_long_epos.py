@@ -51,7 +51,7 @@ for sub in subjs:
     events_4 = list(np.load('{}nc_{}_4_events.npy'.format(preproc_dir,sub)))
     epochs_4 = mne.Epochs(raw_4,events_4,event_id=event_id,baseline=baseline,picks=['meg'],tmin=tmin,tmax=tmax,preload=True)
     epochs_4.save('{}{}_4_long-epo.fif'.format(preproc_dir,sub),overwrite=True)
-    print(epochs_3)
+    print(epochs_4)
     # equalize bads and append all experiment epochs, save
     bads = epochs_3.info['bads'] + epochs_4.info['bads']
     epochs_3.info['bads'] = bads
