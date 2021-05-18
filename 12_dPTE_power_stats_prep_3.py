@@ -81,14 +81,9 @@ for meg, mri in sub_dict.items():
     # then reduce them to our labels of interest
     labs = [l for l in labels if l.name in lois]
     labs_sorted = [labs[i] for i in [2,0,1,3,4]]    # sort them to order of lois
-    # calculate CSD and DICS beamformer filters for all epos
-    csd_a = mne.time_frequency.csd_morlet(epo, frequencies=freqs_a, n_jobs=8, n_cycles=cycles_a, decim=1)
-    csd_b = mne.time_frequency.csd_morlet(epo, frequencies=freqs_b, n_jobs=8, n_cycles=cycles_b, decim=1)
-    filters_a = mne.beamformer.make_dics(epo.info,fwd,csd_a.mean(),pick_ori='max-power',reduce_rank=False,depth=1.0,inversion='single')
-    filters_a.save('{}{}-long-alpha-dics.h5'.format(save_dir,meg))
-    filters_b = mne.beamformer.make_dics(epo.info,fwd,csd_b.mean(),pick_ori='max-power',reduce_rank=False,depth=1.0,inversion='single')
-    filters_a.save('{}{}-long-beta-dics.h5'.format(save_dir,meg))
-    del csd_a, csd_b
+    # load the saved beamformer filters for all epos
+    filters_a = mne.beamformer.read_beamformer('{}{}-long-alpha-dics.h5'.format(save_dir,meg))
+    filters_b = mne.beamformer.read_beamformer('{}{}-long-beta-dics.h5'.format(save_dir,meg))
     # crop the epochs to the time interval of interest (this is done in_place)
     epo.crop(tmin=tmin, tmax=tmax)
 
@@ -144,6 +139,12 @@ df_NEM_pow = pd.DataFrame.from_dict(power)
 df_NEM_a_dPTE_power = df_NEM_a_dPTE_power.join(df_NEM_pow, on=None, how='left', lsuffix='', rsuffix='_p', sort=False)
 df_NEM_a_dPTE_power = df_NEM_a_dPTE_power.drop(columns=['Subject_p','Emo_p'])
 df_NEM_a_dPTE_power.to_csv("{}NEMO_a_dPTE_power.csv".format(save_dir), index=False)
+
+# multiply all power values with 1e+26 for better scaling and accuracy with stats calculations
+pow_cols = ["LO_a_pow","LO_b_pow","IP_a_pow","IP_b_pow","IT_a_pow","IT_b_pow","SM_a_pow","SM_b_pow","TT_a_pow","TT_b_pow"]
+for col in pow_cols:
+    df_NEM_a_dPTE_power[col] = df_NEM_a_dPTE_power[col].mul(1e+26)
+df_NEM_a_dPTE_power.to_csv("{}NEMO_a_dPTE_ab_power.csv".format(save_dir), index=False)
 
 # NOW DO STATS
 # start with last cluster: TT-beta

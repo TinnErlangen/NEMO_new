@@ -4,11 +4,11 @@ import mne
 import numpy as np
 import pandas as pd
 from io import StringIO
-import feather
+# import feather
 
 # set directories to load files
-behav_dir = "D:/NEMO_analyses/behav/"
-proc_dir = "D:/NEMO_analyses_new/proc/"
+behav_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/behav/"   # on workstation D:/
+proc_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/proc/"
 
 # subjects list
 subjs = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15",
@@ -187,5 +187,11 @@ for sub_ix,sub in enumerate(subjs):
 
 # when all subject data are collected, save the dataframe (feather format is fast and readable in R)
 df_NEM.index = list(range(df_NEM.shape[0]))  # fix the index for saving
-df_NEM.to_feather("{}NEMO_complete.feather".format(proc_dir))
+# make sure the numbers are in the correct dtype
+df_NEM = df_NEM.infer_objects()
+# convert the power values for stats: multiply by e+30, to make fT^2 out of T^2 & then take the log10 to make linear; power columns are [10:-4]
+df_NEM.iloc[:, 10:-4] = df_NEM.iloc[:, 10:-4].mul(1e+30)
+df_NEM.iloc[:, 10:-4] = np.log10(df_NEM.iloc[:, 10:-4])
+# save
+# df_NEM.to_feather("{}NEMO_complete.feather".format(proc_dir))
 df_NEM.to_csv("{}NEMO_complete.csv".format(proc_dir), index=False)
