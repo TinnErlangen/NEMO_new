@@ -7,8 +7,10 @@ mne.viz.set_3d_backend('pyvista')
 ## remember: BRA52, ((FAO18, WKI71 - excl.)) have fsaverage MRIs (originals were defective)
 
 
-proc_dir = "D:/NEMO_analyses_new/proc/"
-mri_dir = "D:/freesurfer/subjects/"
+# proc_dir = "D:/NEMO_analyses_new/proc/"
+proc_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/proc/"
+mri_dir = "/home/cora/hdd/MEG/freesurfer/subjects/"
+
 sub_dict = {"NEM_10":"GIZ04","NEM_11":"WOO07","NEM_12":"TGH11","NEM_14":"FIN23","NEM_15":"KIL13",
            "NEM_16":"KIO12","NEM_17":"DEN59","NEM_18":"SAG13","NEM_20":"PAG48","NEM_22":"EAM11",
            "NEM_23":"FOT12","NEM_24":"BII41","NEM_26":"ENR41","NEM_27":"HIU14","NEM_28":"WAL70",
@@ -87,12 +89,16 @@ stc_sum = all_diff.pop()
 for stc in all_diff:
     stc_sum = stc_sum + stc
 GA_stc_diff = stc_sum / len(sub_dict)
-# plot difference on fsaverage mixed source space
+GA_stc_diff.save("{}GA_fs_mix_ton_N-P_stc.h5".format(proc_dir))
+GA_stc_diff_surf = GA_stc_diff.surface()
+GA_stc_diff_surf.save("{}GA_fs_surf_ton_N-P_stc.h5".format(proc_dir))
+# # plot difference on fsaverage mixed source space
 brain = GA_stc_diff.plot(subjects_dir=mri_dir,subject='fsaverage',surface='white',hemi='both',time_viewer=True,src=fs_src,show_traces=False)
 brain.add_annotation('aparc', borders=1, alpha=0.9)
 
 # now do cluster permutation analysis on all frequencies
 X_diff_s = np.array(X_diff_s)
+np.save("{}GA_X_surf_ton_N-P_for_clu.npy".format(proc_dir),X_diff_s)
 X_diff_v = np.array(X_diff_v)
 
 # for i,freq in enumerate(freq_tup):
