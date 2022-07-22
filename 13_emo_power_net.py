@@ -6,6 +6,7 @@ plt.ion()
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import seaborn as sns
+from scipy import stats
 
 save_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/proc/dPTE/"
 
@@ -22,10 +23,15 @@ pow_vars = ["LO_a_pow","LO_b_pow","IP_a_pow","IP_b_pow","IT_a_pow","IT_b_pow","S
 # aicd_thresh = 5
 def aic_pval(a,b):
     return np.exp((a - b)/2)   # calculates the evidence ratio for 2 aic values
+def pseudo_r2(m, y):    # calculates the pseudo r2 from model summary(m) and observed vals (y)
+    fitvals = m.fittedvalues
+    r , v = stats.pearsonr(fitvals, y)
+    return r**2
 
 # Building Otimal Models for each Power Node
 for pow_var in pow_vars:
     d_var = pow_var
+    obsvals = NEMO[d_var]
     p_vars = ["LO_a_pow","LO_b_pow","IP_a_pow","IP_b_pow","IT_a_pow","IT_b_pow","SM_a_pow","SM_b_pow","TT_a_pow","TT_b_pow"]
     p_vars.remove(d_var)
 
@@ -34,6 +40,7 @@ for pow_var in pow_vars:
     model = "{dv} ~ 1".format(dv=d_var)
     res_0 = smf.mixedlm('{}'.format(model), data=NEMO, groups=NEMO['Subject']).fit(reml=False)
     print("Null model AIC =  ", res_0.aic)
+    print("Null model PseudoR2 =  ", pseudo_r2(res_0,obsvals))
     null_aic = res_0.aic
     last_aic = res_0.aic    # for deltas and comparisons
 
@@ -43,12 +50,12 @@ for pow_var in pow_vars:
     model = "{dv} ~ {t}".format(dv=d_var, t=ton)
     res_ton = smf.mixedlm('{}'.format(model), data=NEMO, groups=NEMO['Subject']).fit(reml=False)
     ton_aic = res_ton.aic
-    print("Ton model results -- AIC = ", ton_aic, ", AIC_delta = ", null_aic - ton_aic, ", AIC_p = ", aic_pval(ton_aic,null_aic))
+    print("Ton model results -- AIC = ", ton_aic, ", AIC_delta = ", null_aic - ton_aic, ", AIC_p = ", aic_pval(ton_aic,null_aic), ", PseudoR2 = ", pseudo_r2(res_ton,obsvals))
     print("EMO")
     model = "{dv} ~ {e}".format(dv=d_var, e=emo)
     res_emo = smf.mixedlm('{}'.format(model), data=NEMO, groups=NEMO['Subject']).fit(reml=False)
     emo_aic = res_emo.aic
-    print("Emo model results -- AIC = ", emo_aic, ", AIC_delta = ", null_aic - emo_aic, ", AIC_p = ", aic_pval(emo_aic,null_aic))
+    print("Emo model results -- AIC = ", emo_aic, ", AIC_delta = ", null_aic - emo_aic, ", AIC_p = ", aic_pval(emo_aic,null_aic), ", PseudoR2 = ", pseudo_r2(res_emo,obsvals))
 
     # Finding the Optimal Model with Power Variables
     print("Finding the Optimal Model with Power Variables..")
@@ -124,3 +131,4 @@ for pow_var in pow_vars:
     print("Optimal model is: ", model_bef)
     res_opt = smf.mixedlm('{}'.format(model_bef), data=NEMO, groups=NEMO['Subject']).fit(reml=False)
     print(res_opt.summary())
+    print("Opt Model PseudoR2 = ", pseudo_r2(res_opt,obsvals))

@@ -16,8 +16,8 @@ mne.viz.set_3d_backend('pyvista')
 
 # setup files and folders, subject lists
 
-proc_dir = "D:/NEMO_analyses_new/proc/"
-mri_dir = "D:/freesurfer/subjects/"
+proc_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/proc/"
+mri_dir = "/home/cora/hdd/MEG/freesurfer/subjects/"
 sub_dict = {"NEM_10":"GIZ04","NEM_11":"WOO07","NEM_12":"TGH11","NEM_14":"FIN23","NEM_15":"KIL13",
            "NEM_16":"KIO12","NEM_17":"DEN59","NEM_18":"SAG13","NEM_20":"PAG48","NEM_22":"EAM11",
            "NEM_23":"FOT12","NEM_24":"BII41","NEM_26":"ENR41","NEM_27":"HIU14","NEM_28":"WAL70",
@@ -28,7 +28,7 @@ subjs = ["NEM_10","NEM_11","NEM_12","NEM_14","NEM_15",
          "NEM_23","NEM_24","NEM_26","NEM_27","NEM_28",
          "NEM_29","NEM_31","NEM_34","NEM_35","NEM_36"]
 #subjs = ["NEM_10","NEM_11"]
-save_dir = "D:/NEMO_analyses_new/plots/behav_corr_new/"  # for saving plots
+save_dir = "/home/cora/hdd/MEG/NEMO_analyses_new/plots/behav_corr_new/"  # for saving plots
 
 # values to choose from
 freq_bands = {"theta":list(np.arange(3,8)),"alpha":list(np.arange(8,14)),"beta_low":list(np.arange(14,22)),
@@ -44,8 +44,8 @@ beh_vars = ['Pic_Val', 'Pic_Ars', 'Ton_Laut', 'Ton_Ang','Emo_Val', 'Emo_Ars', 'E
 
 ## SET THE VARIABLES : Behav, Contrast & Frequency
 contrast = 'ton_n-ton_p'
-beh_cond = 'Psycho_ges'
-freq = "gamma_high"
+beh_cond = 'Ton_Ang'
+freq = "gamma"
 if freq != "gamma_high":
     ix = freqs_ix[freq]
 print("Correlation Cluster Analysis")
@@ -115,6 +115,7 @@ clusters, cluster_stats = _find_clusters(X_R_Tval,threshold=threshold,
                                                tail=0)
 print("Found {} initial clusters...".format(len(clusters)))
 print("Max Cluster T-Sum is {}".format(cluster_stats.max()))
+print("Min Cluster T-Sum is {}".format(cluster_stats.min()))
 
 # do the random sign flip permutation
 # setup
@@ -139,7 +140,8 @@ for i in range(n_perms):
                                                    adjacency=adjacency_s,
                                                    tail=0)
     if len(perm_clusters):
-        cluster_H0[i] = np.abs(perm_cluster_stats).max()     # this should be changed to cluster_H0[i] = np.abs(perm_cluster_stats).max()
+        cluster_H0[i] = np.abs(perm_cluster_stats).max()     # this should be changed to cluster_H0[i] = np.abs(perm_cluster_stats).max() for 2-tailed version
+        # cluster_H0[i] = np.abs(perm_cluster_stats.min())
     else:
         cluster_H0[i] = np.nan
 
